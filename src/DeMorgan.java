@@ -4,11 +4,12 @@ import java.util.Vector;
 
 public class DeMorgan {
     public static void main(String[] argc){
-        String rs = deMorganLaw("!(a*(b+c))");
+        String rs = deMorganLaw("!(a*b*c)");
         System.out.println(rs);
     }
     //!(a*b) = !a+!b
     public static String deMorganLaw(String s){
+        s = removeParentheses(s);
         if(!isLegal(s)){
             //return "Error:This expression cannot be processed with DeMorgan's Law!!!\n";
             return s;
