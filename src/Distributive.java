@@ -4,7 +4,7 @@ import java.util.Vector;
 public class Distributive {
     public static void main(String[] args) {
 
-        String s = distributiveLaw("(a+c)*(a+f)");
+        String s = distributiveLaw("a*(b*c+d*e)");
         System.out.println(s);
 
 
