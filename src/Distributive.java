@@ -1,13 +1,12 @@
 //author：SX1916085 贺星宇
+//github: https://github.com/andy172008/NUAA-Logic-for-applications
+
 import java.util.Vector;
 
 public class Distributive {
     public static void main(String[] args) {
-
-        String s = distributiveLaw("a*(b*c+d*e)");
+        String s = distributiveLaw("a*(c+e)*v");
         System.out.println(s);
-
-
     }
 
     //设定输入的表达式均为合法表达式
@@ -17,32 +16,10 @@ public class Distributive {
     public static String distributiveLaw(String s) {
 
         s = removeParentheses(s);
-        //判断当前是否在括号里
-        int flag = 0;
-        Vector<Integer> vector = new Vector<>();
-        vector.add(-1);
-        for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '(') {
-                flag++;
-            } else if (s.charAt(i) == ')') {
-                flag--;
-            }
-            if (flag == 0 && s.charAt(i) == '+') {
-                vector.add(i);
-            }
+        if (!isLegal(s)) {
+            return s;
         }
-        vector.add(s.length());
-        String rs = "";
 
-        if (vector.size() > 2) {
-            for (int i = 0; i < vector.size() - 1; i++) {
-                rs += distributiveLaw(s.substring(vector.elementAt(i) + 1, vector.elementAt(i + 1)));
-                if (i != vector.size() - 2) {
-                    rs += "+";
-                }
-            }
-            return rs;
-        }
 
         //如果程序执行到这里，说明输入的式子是若干个式子的乘积，该对其进行分析
         Vector<String> expression = splitByAnd(s);
@@ -59,7 +36,7 @@ public class Distributive {
             }
             String tempExp = "";
             for (int i = 0; i < exp1.size(); i++) {
-                tempExp += exp1.elementAt(i) + "*" + exp2;
+                tempExp += "(" + exp1.elementAt(i) + "*" + exp2 + ")";
                 if (i != exp1.size() - 1) {
                     tempExp += "+";
                 }
@@ -68,7 +45,7 @@ public class Distributive {
         }
         //如果第一个式子不能拆分，我们继续分析后面的式子
         else {
-            for (int i = 1; i < expression.size() ; i++) {
+            for (int i = 1; i < expression.size(); i++) {
                 if (isSplitByOr(expression.elementAt(i))) {
                     Vector<String> exp1 = splitByOr(expression.elementAt(i));
                     String exp2 = "";
@@ -80,28 +57,45 @@ public class Distributive {
                     }
                     String tempExp = "";
                     for (int j = 0; j < exp1.size(); j++) {
-                        tempExp += exp2 + "*" + exp1.elementAt(j);
+                        tempExp += "(" + exp2 + "*" + exp1.elementAt(j) + ")";
                         if (j != exp1.size() - 1) {
                             tempExp += "+";
                         }
                     }
                     String tail = "";
-                    for (int j = i + 1; j < expression.size() ; j++) {
+                    for (int j = i + 1; j < expression.size(); j++) {
                         tail += expression.elementAt(j);
-                        if (j != expression.size() - 2) {
+                        if (j != expression.size() - 1) {
                             tail += "*";
                         }
                     }
-                    if(tail!="") {
-                        return "(" + distributiveLaw(tempExp) + ")*" + tail;
-                    }else{
+                    if (tail != "") {
+                        return distributiveLaw("(" + distributiveLaw(tempExp) + ")*" + tail);
+                    } else {
                         return distributiveLaw(tempExp);
                     }
                 }
             }
         }
-        //如果所有的式子都不能拆分
+        //如果所有的式子都不能拆分,直接返回原字符串
         return s;
+    }
+
+    //这个函数的作用是，判断是否能用分配律处理
+    public static Boolean isLegal(String s) {
+        //判断当前是否在括号里
+        int flag = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '(') {
+                flag++;
+            } else if (s.charAt(i) == ')') {
+                flag--;
+            }
+            if (flag == 0 && s.charAt(i) == '+') {
+                return false;
+            }
+        }
+        return true;
     }
 
     //这个函数的作用是，若输入的字符串整体被小括号所包裹，则脱去小括号
@@ -125,8 +119,25 @@ public class Distributive {
 
     //这个函数的作用是，判断一个简单表达式是否能被拆分成若干个表达式的累加
     public static boolean isSplitByOr(String s) {
+        s = removeParentheses(s);
+        int flag = 0;
         for (int i = 0; i < s.length(); i++) {
-            if (s.charAt(i) == '+') {
+            if (s.charAt(i) == '(') {
+                flag++;
+            } else if (s.charAt(i) == ')') {
+                flag--;
+            }
+            if (flag == 0 && s.charAt(i) == '*') {
+                return false;
+            }
+        }
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == '(') {
+                flag++;
+            } else if (s.charAt(i) == ')') {
+                flag--;
+            }
+            if (flag == 0 && s.charAt(i) == '+') {
                 return true;
             }
         }

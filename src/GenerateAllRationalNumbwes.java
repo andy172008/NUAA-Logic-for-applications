@@ -1,4 +1,7 @@
 //author：SX1916085 贺星宇
+//github: https://github.com/andy172008/NUAA-Logic-for-applications
+
+
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
